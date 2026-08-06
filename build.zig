@@ -7,7 +7,7 @@ pub fn build(b: *std.Build) void {
     // The importable library module. Consumers add this module via
     // `b.dependency("crc32", .{ ... }).artifact("crc32")` or `b.addModule` and
     // `@import("crc32")` in their code.
-    _ = b.addModule("crc32", .{
+    const crc32_mod = b.addModule("crc32", .{
         .root_source_file = b.path("src/crc32.zig"),
         .target = target,
         .optimize = optimize,
@@ -40,4 +40,28 @@ pub fn build(b: *std.Build) void {
     const install_bench = b.addInstallArtifact(bench, .{});
     const bench_step = b.step("bench", "Build the benchmark executable");
     bench_step.dependOn(&install_bench.step);
+
+    // Examples. Each is a small executable linking the library module; built
+    // with `zig build examples` into `zig-out/bin/`.
+    const example_files = [_][]const u8{
+        "examples/basic.zig",
+        "examples/streaming.zig",
+        "examples/polynomials.zig",
+        "examples/marshal.zig",
+    };
+    const example_step = b.step("examples", "Build the example executables");
+    for (example_files) |path| {
+        const ex_mod = b.createModule(.{
+            .root_source_file = b.path(path),
+            .target = target,
+            .optimize = optimize,
+        });
+        ex_mod.addImport("crc32", crc32_mod);
+        const base = std.fs.path.basename(path);
+        const exe = b.addExecutable(.{
+            .name = base[0 .. base.len - 4],
+            .root_module = ex_mod,
+        });
+        example_step.dependOn(&b.addInstallArtifact(exe, .{}).step);
+    }
 }
