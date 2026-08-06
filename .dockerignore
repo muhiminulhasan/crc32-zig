@@ -1,0 +1,10 @@
+.git
+.gitignore
+.zig-cache
+zig-out
+*.exe
+*.dll
+*.o
+*.a
+.DS_Store
+Thumbs.db
