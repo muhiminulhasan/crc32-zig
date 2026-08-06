@@ -20,7 +20,7 @@ folded forward 128 bytes per iteration, hiding the multiply latency across eight
 dependency chains. On an input large enough to fill them, this is an order of
 magnitude faster than the scalar table. The fold constants are derived from the
 IEEE polynomial itself (`reflect(x^(d+63) mod P)` and `reflect(x^(d-1) mod P)`)
-- there are no copied magic numbers.
+there are no copied magic numbers.
 
 ## Works on any CPU
 
